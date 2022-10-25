@@ -110,6 +110,7 @@ func InitConfig(filename string) (*Config, error) {
 			"archive_mode":                    "on",
 			"archive_command":                 "if [ $ENABLE_WALG ]; then /usr/local/bin/wal-g wal-push \"%p\"; fi",
 			"archive_timeout":                 "60",
+			"shared_preload_libraries": 			 "timescaledb",
 		},
 	}
 
