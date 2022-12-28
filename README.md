@@ -1,8 +1,8 @@
 # High Availability Postgres on Fly.io
 
-This repo contains all the code and configuration necessary to run a [highly available Postgres cluster](https://fly.io/docs/reference/postgres/) in a Fly.io organization's private network. This source is packaged into [Docker images](https://hub.docker.com/r/flyio/postgres-ha/tags) which allow you to track and upgrade versions cleanly as new features are added.
+This repo contains all the code and configuration necessary to run a [highly available Postgres cluster](https://fly.io/docs/postgres/) in a Fly.io organization's private network. This source is packaged into [Docker images](https://hub.docker.com/r/flyio/postgres-ha/tags) which allow you to track and upgrade versions cleanly as new features are added.
 
-If you just want to get a standard Postgres standalone or highly-available setup on Fly, [check out the docs](https://fly.io/docs/reference/postgres/).
+If you just want to get a standard Postgres standalone or highly-available setup on Fly, [check out the docs](https://fly.io/docs/postgres/).
 ## Customizing cluster behavior
 
 Fly Postgres clusters are just regular Fly applications. If you need to customize Postgres in any way, you may fork this repo and deploy using normal Fly deployment procedures. You won't be able to use `fly postgres` commands with custom clusters. But it's a great way to experiment and potentially contribute back useful features!
@@ -75,6 +75,43 @@ flyctl proxy 5432 -a <postgres-app-name>
 
 ```
 psql postgres://postgres:<operator_password>@localhost:5432
+```
+
+## Enabling TimescaleDB
+
+This app includes the [TimescaleDB extension](https://timescale.com/).  To enable TimescaleDB, take the following steps:
+
+
+1. Ensure your Postgres app is running `>= v0.0.28`.
+
+```
+# View your image details
+fly image show --app <app-name>
+
+# Update to the latest ( Nomad-based apps )
+fly image update --app <app-name>
+```
+
+2. Configure Postgres to preload the TimescaleDB library
+
+```
+fly pg config update --shared-preload-libraries timescaledb --app <app-name>
+```
+
+3. Restart Postgres
+
+```
+fly postgres restart --app <app-name>
+```
+
+4. Create the extension
+
+```
+# Connect to your target database
+fly pg connect --app <app-name> --database <db-name>
+
+# Create the extension
+CREATE EXTENSION IF NOT EXISTS timescaledb;
 ```
 
 ## Having trouble?
